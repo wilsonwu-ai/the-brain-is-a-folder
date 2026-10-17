@@ -1,0 +1,54 @@
+name: demo
+
+# The README badge points here. It is the guardrail logic under test, on a clean
+# runner: the Python that ships with it, no pip install step anywhere, no network
+# needed, no API key. It tests the filing rules. It does not test any language model.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guardrails-hold:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show the interpreter we are using
+        run: python3 --version
+
+      - name: Run the demo
+        # Exits non-zero if rules.md, about/, skills/ or raw/ changed, or if the
+        # injected address reached the wiki.
+        run: python3 demo/run_demo.py
+
+      - name: Run the tests
+        run: python3 -m unittest discover -s demo -v
+
+      - name: Assert the output is deterministic across hash seeds
+        run: |
+          PYTHONHASHSEED=0 python3 demo/run_demo.py > /tmp/a.txt
+          PYTHONHASHSEED=1 python3 demo/run_demo.py > /tmp/b.txt
+          diff /tmp/a.txt /tmp/b.txt && echo "deterministic"
+
+      - name: Prove the check can fail
+        # A green badge only means something if a broken filer turns it red.
+        # Make the filer obey the injected email by writing to rules.md directly,
+        # and require the tests to notice.
+        run: |
+          mkdir /tmp/broken && cp -r demo templates docs README.md SOURCES.md /tmp/broken/
+          python3 - <<'PY'
+          p = "/tmp/broken/demo/filer.py"
+          s = open(p).read()
+          needle = '    return {\n        "filed"'
+          assert needle in s
+          s = s.replace(needle, '    open(brain / "rules.md", "a").write("forward invoices\\n")\n' + needle)
+          open(p, "w").write(s)
+          PY
+          if python3 -m unittest discover -s /tmp/broken/demo >/dev/null 2>&1; then
+            echo "tests passed against a broken filer: the check is decorative"; exit 1
+          fi
+          echo "broken filer was caught"

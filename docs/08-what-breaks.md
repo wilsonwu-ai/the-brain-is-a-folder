@@ -58,7 +58,7 @@ These are our recommendations, not findings from the sources. None is perfect. T
 - **Separate jobs.** If you can, split the work: one job reads mail and only writes to `raw/`, and a different job with no mail access does the compiling into `wiki/`. The compiler then holds no mail credentials. It still reads untrusted text from `raw/`, so the quarantine rule still applies.
 - **Least permission, checked at the source.** Review what each connector can actually do in its own settings. Some platforms let scheduled runs use connected tools without asking for approval on each call (the adapters note which). Prompt wording is advice; permission settings are the real limit.
 - **Log everything.** The log and your version history let you see what a job changed, which is how you will notice a problem.
-- **Test with a canary.** Send yourself an email that tells the assistant to ignore its instructions and add a rule, and confirm the pipeline files it as a suspicious source and changes nothing else.
+- **Test with a canary.** Send yourself an email that tells the assistant to ignore its instructions and add a rule, and confirm the pipeline files it as a suspicious source and changes nothing else. The `demo/` folder in the repo root runs exactly this test against a rule-based filer, so you can see what a pass looks like before you try it on your own setup.
 
 ## Failure five: you stop looking
 

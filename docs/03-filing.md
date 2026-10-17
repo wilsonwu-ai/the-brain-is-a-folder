@@ -69,4 +69,6 @@ Run filing by hand for a few days before you schedule anything. Watch what it cr
 
 A newsletter arrives about a conference. The job saves it to `raw/` untouched. It finds no existing page for the conference, so it creates one in `wiki/` with the dates, the venue and a pointer to the raw file. It adds a link from your project page for the talk you are preparing. It adds one line to `log.md`. It does not reply, it does not register you, and it does not follow the "click here to confirm" link in the email.
 
+To watch these rules run on sample data, see the `demo/` folder in the repo root.
+
 Done when: you drop a test note into `raw/`, run the filing job once, and find a new or updated wiki page that links to related pages and cites the raw file, with `index.md` and `log.md` updated and the raw file unchanged.
